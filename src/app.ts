@@ -4,10 +4,11 @@ import { readFileSync } from "fs";
 
 import * as markdown from "markdown-it";
 import * as nunjucks from "nunjucks";
+import * as os from "os";
 import * as path from "path";
 import * as pty from "pty.js";
 
-const PERSONA = process.env.PERSONA || "amy";
+const PERSONA = os.userInfo().username;
 const contentroot = path.join(__dirname, "..", "content", PERSONA);
 const cfg = JSON.parse(
   readFileSync(path.join(contentroot, "cfg.json"), "utf8")
@@ -20,7 +21,7 @@ cfg.info = md.render(infomd);
 
 const app = express();
 const expressWs = websocket(app);
-nunjucks.configure("views", {
+nunjucks.configure(path.join(__dirname, "..", "views"), {
   autoescape: true,
   express: app
 });
@@ -41,7 +42,7 @@ expressWs.app.ws("/shell", ws => {
   // Spawn the shell
   // Compliments of http://krasimirtsonev.com/blog/article/meet-evala-your-terminal-in-the-browser-extension
   const shell = pty.spawn("/bin/bash", [], {
-    cwd: process.env.PWD,
+    cwd: `/home/${PERSONA}`,
     env: process.env,
     name: "xterm-color"
   });
