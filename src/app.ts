@@ -8,13 +8,17 @@ import * as os from "os";
 import * as path from "path";
 import * as pty from "pty.js";
 
+
+
 const PERSONA = os.userInfo().username;
-const contentroot = path.join(__dirname, "..", "content", PERSONA);
+const contentRoot = process.env.CONTENT_ROOT || path.join(__dirname,"..","content");
+
+const content = path.join(contentRoot, PERSONA);
 const cfg = JSON.parse(
   readFileSync(path.join(contentroot, "cfg.json"), "utf8")
 );
 
-const infomd = readFileSync(path.join(contentroot, "info.md"), "utf8");
+const infomd = readFileSync(path.join(contentRoot, cfg.info), "utf8");
 
 const md = markdown();
 cfg.info = md.render(infomd);
