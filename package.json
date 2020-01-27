@@ -1,10 +1,10 @@
 {
   "name": "code-hats",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "code-hats",
   "license": "MIT",
   "repository": "",
-  "author": "",
+  "author": "mbw",
   "keywords": [
     ""
   ],
@@ -21,8 +21,7 @@
     "build": "npm run format && npm run clean && npm run lint && echo Using TypeScript && tsc --version && tsc --pretty",
     "test": "npm run build && mocha --compilers ts:ts-node/register --recursive \"test/**/*-spec.ts\"",
     "coverage": "nyc --include=\"src/**/*.ts\" --reporter=text --reporter=html --reporter=lcov mocha --compilers ts:ts-node/register --recursive \"test/**/*-spec.ts\"",
-    "watch": "npm run build -- --watch",
-    "watch:test": "npm run test -- --watch"
+    "docker": "docker build . -t calanais/code-hats"
   },
   "dependencies": {
     "@types/debug": "^4.1.4",

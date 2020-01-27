@@ -1,0 +1,74 @@
+{
+    "organisations": {
+        "org1": {
+            "resourcePath": "org1",
+            "displayname":"DigiBank"
+        },
+        "org2": {
+            "resourcePath": "org2",
+            "displayname":"MagnetoCorp"
+        }
+    },
+    "personas": {
+        "balaji": {
+            "name": "balaji",
+            "role": "Developer",
+            "org": "org1",
+            "info": "balaji-info.md",
+            "env": {
+                "CORE_PEER_ADDRESS": "peer0.org1.example.com:7051",
+                "CORE_PEER_LOCALMSPID": "Org1MSP",
+                "CORE_PEER_TLS_ENABLED": "true",
+                "CORE_PEER_TLS_CERT_FILE": "/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/server.crt",
+                "CORE_PEER_TLS_KEY_FILE": "/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/server.key",
+                "CORE_PEER_TLS_ROOTCERT_FILE": "/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt",
+                "CORE_PEER_MSPCONFIGPATH": "/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp"
+            }
+        },
+        "isabella": {
+            "name": "isabella",
+            "role": "Admin",
+            "org": "org1",
+            "info": "isabella-info.md",
+            "env": {
+                "CORE_PEER_ADDRESS": "peer0.org1.example.com:7051",
+                "CORE_PEER_LOCALMSPID": "Org1MSP",
+                "CORE_PEER_TLS_ENABLED": "true",
+                "CORE_PEER_TLS_CERT_FILE": "/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/server.crt",
+                "CORE_PEER_TLS_KEY_FILE": "/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/server.key",
+                "CORE_PEER_TLS_ROOTCERT_FILE": "/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt",
+                "CORE_PEER_MSPCONFIGPATH": "/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp"
+            }
+        },
+        "amy": {
+            "name": "amy",
+            "org": "org2",
+            "role": "Developer",
+            "info": "amy-info.md",
+            "env": {
+                "CORE_PEER_ADDRESS": "peer0.org1.example.com:7051",
+                "CORE_PEER_LOCALMSPID": "Org1MSP",
+                "CORE_PEER_TLS_ENABLED": "true",
+                "CORE_PEER_TLS_CERT_FILE": "/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/server.crt",
+                "CORE_PEER_TLS_KEY_FILE": "/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/server.key",
+                "CORE_PEER_TLS_ROOTCERT_FILE": "/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt",
+                "CORE_PEER_MSPCONFIGPATH": "/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp"
+            }
+        },
+        "bob": {
+            "name": "bob",
+            "org": "org2",
+            "role": "Admin",
+            "info": "bob-info.md",
+            "env": {
+                "CORE_PEER_ADDRESS": "peer0.org1.example.com:7051",
+                "CORE_PEER_LOCALMSPID": "Org1MSP",
+                "CORE_PEER_TLS_ENABLED": "true",
+                "CORE_PEER_TLS_CERT_FILE": "/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/server.crt",
+                "CORE_PEER_TLS_KEY_FILE": "/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/server.key",
+                "CORE_PEER_TLS_ROOTCERT_FILE": "/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt",
+                "CORE_PEER_MSPCONFIGPATH": "/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp"
+            }
+        }
+    }
+}

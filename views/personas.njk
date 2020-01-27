@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>bash</title>
+    <link rel="stylesheet" href="/node_modules/xterm/dist/xterm.css"/>
+    <!-- <link rel="stylesheet" href="/node_modules/xterm/dist/addons/fullscreen/fullscreen.css" /> -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.min.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/es6-promise/4.1.1/es6-promise.auto.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fetch/1.0.0/fetch.min.js"></script>
+    <script src="/node_modules/xterm/dist/xterm.js"></script>
+    <script src="/node_modules/xterm/dist/addons/fit/fit.js"></script>
+    <script src="/node_modules/xterm/dist/addons/attach/attach.js"></script>
+    <script src="/node_modules/xterm/dist/addons/winptyCompat/winptyCompat.js"></script>
+  </head>
+  <body>
+    <section class="section">
+      <div class="columns">
+        <div class="column">
+          <div class="card">
+            <div class="card-content">
+              <div class="media">
+                <div class="media-left">
+                  <figure class="image is-96x96">
+                    <a href="">
+                      <img src="https://bulma.io/images/placeholders/96x96.png" alt="Placeholder image"/></a>
+                  </figure>
+                </div>
+                <div class="media-content">
+                  <p class="title is-4">org1</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% for name, data in personas %}
+            {% if data.org === 'org1' %}
+              <div class="card">
+                <div class="card-content">
+                  <div class="media">
+                    <div class="media-left">
+                      <figure class="image is-96x96">
+                        <a href="/{{name}}">
+                          <img src="/images/{{name | lower | replace(" "," -")}}-person.png"="-" )}}-person.png""=")}}-person.png""" alt="Placeholder image"/></a>
+                      </figure>
+                    </div>
+                    <div class="media-content">
+                      <p class="title is-4">{{data.name}}</p>
+                      <p class="subtitle is-6">{{data.role}}
+                        for
+                        {{data.org}}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+
+        <div class="column">
+          <div class="card">
+            <div class="card-content">
+              <div class="media">
+                <div class="media-left">
+                  <figure class="image is-96x96">
+                    <a href="">
+                      <img src="https://bulma.io/images/placeholders/96x96.png" alt="Placeholder image"/></a>
+                  </figure>
+                </div>
+                <div class="media-content">
+                  <p class="title is-4">org2</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% for name, data in personas %}
+            {% if data.org === 'org2' %}
+              <div class="card">
+                <div class="card-content">
+                  <div class="media">
+                    <div class="media-left">
+                      <figure class="image is-96x96">
+                        <a href="/{{name}}">
+                          <img src="/images/{{name | lower | replace(" "," -")}}-person.png"="-" )}}-person.png""=")}}-person.png""" alt="Placeholder image"/></a>
+                      </figure>
+                    </div>
+                    <div class="media-content">
+                      <p class="title is-4">{{data.name}}</p>
+                      <p class="subtitle is-6">{{data.role}}
+                        for
+                        {{data.org}}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+    <script></script>
+  </body>
+</html>

@@ -4,24 +4,30 @@ import { readFileSync } from "fs";
 
 import * as markdown from "markdown-it";
 import * as nunjucks from "nunjucks";
-import * as os from "os";
+
 import * as path from "path";
 import * as pty from "pty.js";
 
+const contentRoot =
+  process.env.CONTENT_ROOT || path.join(__dirname, "..", "content");
 
+console.log(`Content root: ${contentRoot}`);
 
-const PERSONA = os.userInfo().username;
-const contentRoot = process.env.CONTENT_ROOT || path.join(__dirname,"..","content");
-
-const content = path.join(contentRoot, PERSONA);
+// const content = path.join(contentRoot, PERSONA);
 const cfg = JSON.parse(
-  readFileSync(path.join(contentroot, "cfg.json"), "utf8")
+  readFileSync(path.join(contentRoot, "cfg.json"), "utf8")
 );
 
-const infomd = readFileSync(path.join(contentRoot, cfg.info), "utf8");
-
+const personas = cfg.personas;
 const md = markdown();
-cfg.info = md.render(infomd);
+let key: string;
+let value: any;
+
+for ([key, value] of Object.entries(personas)) {
+  const infomd = readFileSync(path.join(contentRoot, value.info), "utf8");
+  personas[key].info = md.render(infomd);
+  value.wspath = key;
+}
 
 const app = express();
 const expressWs = websocket(app);
@@ -33,23 +39,44 @@ nunjucks.configure(path.join(__dirname, "..", "views"), {
 app.use(express.static(`${__dirname}/../static`));
 
 // tslint:disable-next-line:variable-name
-app.get("/", (_req, res) => {
-  res.render("index", cfg);
+app.get("/:persona", (req, res) => {
+  res.render("index", personas[req.params.persona]);
 });
 
+app.get("/", (_req, res) => {
+  res.render("personas", cfg);
+});
 // view engine setup
 app.set("views", path.join(__dirname, "..", "views"));
 app.set("view engine", "njk");
 
 // Instantiate shell and set up data handlers
-expressWs.app.ws("/shell", ws => {
+expressWs.app.ws("/shell/:persona", (ws, req) => {
   // Spawn the shell
+  const env = process.env;
+  Object.assign(env, personas[req.params.persona].env);
+
+  const e = personas[req.params.persona].env;
+  const stringArg = ["--login", `--user=${req.params.persona}`];
+  
+  for (const keyid in e) {
+    if (e.hasOwnProperty(keyid)) {
+      const element = e[keyid];
+      stringArg.push(`${keyid}=${element}`);
+    }
+  }
+
+  // tslint:disable-next-line: no-console
+  console.log(stringArg);
+
   // Compliments of http://krasimirtsonev.com/blog/article/meet-evala-your-terminal-in-the-browser-extension
-  const shell = pty.spawn("/bin/bash", [], {
-    cwd: `/home/${PERSONA}`,
-    env: process.env,
+  const shell = pty.spawn("sudo", stringArg, {
+    // "--preserve-env=CORE_PEER_ADDRESS",
+    cwd: `/home/${req.params.persona}`,
+    env,
     name: "xterm-color"
   });
+
   // For all shell data send it to the websocket
   shell.on("data", (data: any) => {
     ws.send(data);
@@ -58,6 +85,8 @@ expressWs.app.ws("/shell", ws => {
   ws.on("message", msg => {
     shell.write(msg);
   });
+
+  // eg....... shell.write('ls -l');
 });
 
 // // Start the application
