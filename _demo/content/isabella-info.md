@@ -1,88 +1,62 @@
 **For a JavaScript Contract:**
 
-```
-docker exec cliMagnetoCorp peer chaincode install -n papercontract -v 0 -p /opt/gopath/src/github.com/contract -l node
-
-docker exec cliMagnetoCorp peer chaincode instantiate -n papercontract -v 0 -l node -c '{"Args":["org.papernet.commercialpaper:instantiate"]}' -C mychannel -P "AND ('Org1MSP.member')"
-```
-
-**For a Java Contract:**
+Running in MagnetoCorp:
 
 ```
-docker exec cliMagnetoCorp peer chaincode install -n papercontract -v 0 -p /opt/gopath/src/github.com/contract-java -l java
+# MAGENTOCORP
+export CRYPTO_ROOT=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto 
 
-docker exec cliMagnetoCorp peer chaincode instantiate -n papercontract -v 0 -l java -c '{"Args":["org.papernet.commercialpaper:instantiate"]}' -C mychannel -P "AND ('Org1MSP.member')"
-```
- 
-> If you want to try both a Java and JavaScript Contract, then you will need to restart the infrastructure and deploy the other contract. 
+peer lifecycle chaincode package cp.tar.gz --lang node --path /opt/gopath/src/github.com/contract --label cp_0
+peer lifecycle chaincode install cp.tar.gz
 
-## Client Applications
+export PACKAGE_ID=$(peer lifecycle chaincode queryinstalled --output json | jq -r '.installed_chaincodes[0].package_id')
+echo $PACKAGE_ID
 
-Note for Java applications you will need to compile the Java Code using maven.  Use this command in each application-java directory
+peer lifecycle chaincode approveformyorg --orderer orderer.example.com:7050 --channelID mychannel --name papercontract -v 0 --package-id $PACKAGE_ID --sequence 1 --tls --cafile $ORDERER_CA
 
-```
-mvn clean package
-```
-
-Note for JavaScript applications you will need to install the dependencies first. Use this command in each application directory
-
-```
-npm install
+peer lifecycle chaincode checkcommitreadiness --channelID mychannel --name papercontract -v 0 --sequence 1
 ```
 
-
->  Note that there is NO dependency between the langauge of any one client application and any contract. Mix and match as you wish!
-
-### Issue the paper 
-
-This is running as *MagentoCorp* so you can stay in the same window. These commands are to be run in the 
-`commercial-paper/organization/magnetocorp/application` directory or the ``commercial-paper/organization/magnetocorp/application-java`
-
-*Add the Identity to be used*
+Running in Digibank
 
 ```
-node addToWallet.js
-# or 
-java -cp target/commercial-paper-0.0.1-SNAPSHOT.jar org.magnetocorp.AddToWallet
+
+# DIGIBANK
+export CRYPTO_ROOT=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto 
+
+peer lifecycle chaincode package cp.tar.gz --lang node --path /opt/gopath/src/github.com/contract --label cp_0
+peer lifecycle chaincode install cp.tar.gz
+
+export PACKAGE_ID=$(peer lifecycle chaincode queryinstalled --output json | jq -r '.installed_chaincodes[0].package_id')
+echo $PACKAGE_ID
+
+peer lifecycle chaincode approveformyorg --orderer orderer.example.com:7050  \
+                                          --channelID mychannel  \
+                                          --name papercontract  \
+                                          -v 0  \
+                                          --package-id $PACKAGE_ID \
+                                          --sequence 1  \
+                                          --tls  \
+                                          --cafile $ORDERER_CA
 ```
 
-*Issue the Commercial Paper*
+Once both organizations have installed, and approved the chaincode, it can be committed.
 
 ```
-node issue.js
-# or 
-java -cp target/commercial-paper-0.0.1-SNAPSHOT.jar org.magnetocorp.Issue
-```
+# MAGNETOCORP
 
-### Buy and Redeem the paper
+export PEER_ADDRESS_ORG1="--peerAddresses peer0.org1.example.com:7051 --tlsRootCertFiles  ${CRYPTO_ROOT}/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt"
+export PEER_ADDRESS_ORG2="--peerAddresses peer0.org2.example.com:9051 --tlsRootCertFiles  ${CRYPTO_ROOT}/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt"
 
-This is running as *Digibank*; you've not acted as this organization before so in your 'Digibank' window run the following command
-
-`. ./role/digibank.sh` 
-
-You can now run the applications to buy and redeem the paper. Change to either the 
-`commercial-paper/organization/digibank/application` directory or  `commercial-paper/organization/digibank/application-java`
-
-*Add the Identity to be used*
+peer lifecycle chaincode commit -o orderer.example.com:7050 --channelID mychannel --name papercontract -v 0 --sequence 1 ${PEER_ADDRESS_ORG1} ${PEER_ADDRESS_ORG2} --tls --cafile $ORDERER_CA --waitForEvent 
 
 ```
-node addToWallet.js
-# or 
-java -cp target/commercial-paper-0.0.1-SNAPSHOT.jar org.digibank.AddToWallet
-```
 
-*Buy the paper*
+To test try sending some simple transactions.
 
 ```
-node buy.js
-# or
-java -cp target/commercial-paper-0.0.1-SNAPSHOT.jar org.digibank.Buy
-```
 
-*Redeem 
+peer chaincode invoke -o orderer.example.com:7050 --channelID mychannel --name papercontract -c '{"Args":["org.papernet.commercialpaper:instantiate"]}' ${PEER_ADDRESS_ORG1} ${PEER_ADDRESS_ORG2} --tls --cafile $ORDERER_CA --waitForEvent
 
-```
-node redeem.js
-# or 
-java -cp target/commercial-paper-0.0.1-SNAPSHOT.jar org.digibank.Redeem
+peer chaincode query -o orderer.example.com:7050 --channelID mychannel --name papercontract -c '{"Args":["org.hyperledger.fabric:GetMetadata"]}' ${PEER_ADDRESS_ORG1} --tls --cafile $ORDERER_CA | jq -C | more
 ```

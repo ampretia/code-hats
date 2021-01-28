@@ -21,11 +21,6 @@
     <script src="/node_modules/xterm/dist/addons/attach/attach.js"></script>
     <script src="/node_modules/xterm/dist/addons/winptyCompat/winptyCompat.js"></script>
 
-    <style>
-      .xterm-screen {
-        height: 800px;
-      }
-    </style>
   </head>
   <body>
     <section class="section">
@@ -66,7 +61,7 @@
       Terminal.applyAddon(fit);
       Terminal.applyAddon(winptyCompat);
       // The terminal
-      const term = new Terminal();
+      const term = new Terminal({rows:60, cols:100});
       // No idea what this does
       term.winptyCompatInit();
       // This kinda makes sense

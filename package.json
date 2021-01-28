@@ -21,7 +21,8 @@
     "build": "npm run format && npm run clean && npm run lint && echo Using TypeScript && tsc --version && tsc --pretty",
     "test": "npm run build && mocha --compilers ts:ts-node/register --recursive \"test/**/*-spec.ts\"",
     "coverage": "nyc --include=\"src/**/*.ts\" --reporter=text --reporter=html --reporter=lcov mocha --compilers ts:ts-node/register --recursive \"test/**/*-spec.ts\"",
-    "docker": "docker build . -t calanais/code-hats"
+    "docker": "docker build . -t calanais/code-hats",
+    "start":"CONTENT_ROOT=./_demo/content node lib/app.js"
   },
   "dependencies": {
     "@types/debug": "^4.1.4",
@@ -35,8 +36,8 @@
     "express": "^4.17.1",
     "express-ws": "^4.0.0",
     "markdown-it": "^9.0.1",
+    "node-pty": "^0.9.0",
     "nunjucks": "^3.2.0",
-    "pty.js": "^0.3.1",
     "socket.io": "^2.2.0",
     "xterm": "3.8.0"
   },

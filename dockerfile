@@ -7,7 +7,7 @@ FROM ubuntu:18.04
 
 # Update and install node v8
 RUN apt-get update && apt-get upgrade -y && apt-get dist-upgrade -y && apt-get -y install curl gnupg build-essential sudo
-RUN curl -sL https://deb.nodesource.com/setup_8.x  | bash - && apt-get -y install nodejs
+RUN curl -sL https://deb.nodesource.com/setup_12.x  | bash - && apt-get -y install nodejs
 
 # Add essential users, to the correct group, and update their passwords
 RUN addgroup hats && addgroup org1 && addgroup org2
@@ -30,9 +30,6 @@ COPY bashrc /home/dan/.bashrc
 COPY sudoers /etc/sudoers.d/
 
 # Add in Fabric Binaries
-# RUN wget -q -P /tmp https://hyperledger.jfrog.io/hyperledger/fabric-binaries/hyperledger-fabric-linux-amd64-latest.tar.gz && \ 
-#     tar xzvf /tmp/hyperledger-fabric-linux-amd64-latest.tar.gz -C /usr/local
-
 RUN curl -o /tmp/hyperledger-fabric-linux-amd64-latest.tar.gz https://hyperledger.jfrog.io/hyperledger/fabric-binaries/hyperledger-fabric-linux-amd64-latest.tar.gz && \ 
      tar xzvf /tmp/hyperledger-fabric-linux-amd64-latest.tar.gz -C /usr/local
 

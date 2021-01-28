@@ -6,7 +6,7 @@ import * as markdown from "markdown-it";
 import * as nunjucks from "nunjucks";
 
 import * as path from "path";
-import * as pty from "pty.js";
+import * as pty from "node-pty";
 
 const contentRoot =
   process.env.CONTENT_ROOT || path.join(__dirname, "..", "content");
@@ -19,6 +19,15 @@ const cfg = JSON.parse(
 );
 
 const personas = cfg.personas;
+
+personas["matthew"] = {
+  name: "matthew",
+  role: "Developer",
+  org: "org1",
+  info: "balaji-info.md",
+  env: process.env
+};
+
 const md = markdown();
 let key: string;
 let value: any;
@@ -28,6 +37,8 @@ for ([key, value] of Object.entries(personas)) {
   personas[key].info = md.render(infomd);
   value.wspath = key;
 }
+
+console.log(personas);
 
 const app = express();
 const expressWs = websocket(app);
@@ -40,6 +51,7 @@ app.use(express.static(`${__dirname}/../static`));
 
 // tslint:disable-next-line:variable-name
 app.get("/:persona", (req, res) => {
+  console.log(`Rendering index page for ${req.params.persona}`);
   res.render("index", personas[req.params.persona]);
 });
 
@@ -52,13 +64,14 @@ app.set("view engine", "njk");
 
 // Instantiate shell and set up data handlers
 expressWs.app.ws("/shell/:persona", (ws, req) => {
+  console.log(`Running for ${req.params.persona}`);
   // Spawn the shell
-  const env = process.env;
+  const env: { [key: string]: string } = process.env as any;
   Object.assign(env, personas[req.params.persona].env);
 
   const e = personas[req.params.persona].env;
   const stringArg = ["--login", `--user=${req.params.persona}`];
-  
+
   for (const keyid in e) {
     if (e.hasOwnProperty(keyid)) {
       const element = e[keyid];
@@ -74,7 +87,9 @@ expressWs.app.ws("/shell/:persona", (ws, req) => {
     // "--preserve-env=CORE_PEER_ADDRESS",
     cwd: `/home/${req.params.persona}`,
     env,
-    name: "xterm-color"
+    name: "xterm-color",
+    cols: 100,
+    rows: 60
   });
 
   // For all shell data send it to the websocket
@@ -82,7 +97,7 @@ expressWs.app.ws("/shell/:persona", (ws, req) => {
     ws.send(data);
   });
   // For all websocket data send it to the shell
-  ws.on("message", msg => {
+  ws.on("message", (msg: any) => {
     shell.write(msg);
   });
 

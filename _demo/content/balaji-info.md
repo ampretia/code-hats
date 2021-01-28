@@ -1,40 +1,62 @@
+**For a JavaScript Contract:**
 
-## Cheat Sheet for sequence of commands for v2.0 lifecycle and byfn
+Running in MagnetoCorp:
 
-# In Org1 and Org2
 ```
-export ORDERER_CA=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
-export TARGETTED_PEERS="--peerAddresses peer0.org1.example.com:7051 --tlsRootCertFiles /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt --peerAddresses peer0.org2.example.com:9051 --tlsRootCertFiles /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" 
-export CC_PATH=/opt/gopath/src/github.com/hyperledger/fabric-samples/chaincode/fabcar/javascript
-```
-# In Org1
-```
-peer lifecycle chaincode package fabcar_i0.tar.gz --path ${CC_PATH} --lang node --label fabcar_i0
-```
-# In both Org1 and Org2
-```
-peer lifecycle chaincode install fabcar_i0.tar.gz --connTimeout 60s
-export CC_PACKAGE_ID=$(peer lifecycle chaincode queryinstalled 2>&1 | awk -F "[, ]+" '/Label: fabcar_i0/{print $3}') && echo $CC_PACKAGE_ID
-```
-```
-export CC_PACKAGE_ID=$(peer lifecycle chaincode queryinstalled --output json | jq '.installed_chaincodes[] | select(.label=="basicjava") | .package_id' -r) && echo $CC_PACKAGE_ID
+# MAGENTOCORP
+export CRYPTO_ROOT=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto 
 
-peer lifecycle chaincode approveformyorg --channelID mychannel --name pc_0 --version 0.0.3 --package-id $CC_PACKAGE_ID --sequence 1 --waitForEvent --cafile $ORDERER_CA 
+peer lifecycle chaincode package cp.tar.gz --lang node --path /opt/gopath/src/github.com/contract --label cp_0
+peer lifecycle chaincode install cp.tar.gz
 
-peer lifecycle chaincode approveformyorg --channelID mychannel --name pc_0 --version 0.0.3 --package-id $CC_PACKAGE_ID --sequence 1 --waitForEvent --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA 
-```
-# In Org1
-```
-peer lifecycle chaincode commit -o orderer.example.com:7050 --channelID mychannel --name pc_0 --version 0.0.3 --sequence 1 --waitForEvent --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA ${TARGETTED_PEERS}
-peer lifecycle chaincode commit -o orderer.example.com:7050 --channelID mychannel --name pc_0 --version 0.0.3 --sequence 1 --waitForEvent --cafile $ORDERER_CA --peerAddresses peer0.org1.example.com:7051 
-```
-# In either org ->
-```
-peer chaincode query -o orderer.example.com:7050 --channelID mychannel --name pc_0 -c '{"Args":["org.hyperledger.fabric:GetMetadata"]}' --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA | jq
+export PACKAGE_ID=$(peer lifecycle chaincode queryinstalled --output json | jq -r '.installed_chaincodes[0].package_id')
+echo $PACKAGE_ID
 
-# In either org ->
-peer chaincode invoke -o orderer.example.com:7050 --channelID mychannel --name pc_0 -c '{"Args":["initLedger"]}' --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA --waitForEvent ${TARGETTED_PEERS} 
+peer lifecycle chaincode approveformyorg --orderer orderer.example.com:7050 --channelID mychannel --name papercontract -v 0 --package-id $PACKAGE_ID --sequence 1 --tls --cafile $ORDERER_CA
 
-# In either org ->
-peer chaincode query -o orderer.example.com:7050 --channelID mychannel --name pc_0 -c '{"Args":["queryAllCars"]}' --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA | jq 'fromjson'
+peer lifecycle chaincode checkcommitreadiness --channelID mychannel --name papercontract -v 0 --sequence 1
+```
+
+Running in Digibank
+
+```
+
+# DIGIBANK
+export CRYPTO_ROOT=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto 
+
+peer lifecycle chaincode package cp.tar.gz --lang node --path /opt/gopath/src/github.com/contract --label cp_0
+peer lifecycle chaincode install cp.tar.gz
+
+export PACKAGE_ID=$(peer lifecycle chaincode queryinstalled --output json | jq -r '.installed_chaincodes[0].package_id')
+echo $PACKAGE_ID
+
+peer lifecycle chaincode approveformyorg --orderer orderer.example.com:7050  \
+                                          --channelID mychannel  \
+                                          --name papercontract  \
+                                          -v 0  \
+                                          --package-id $PACKAGE_ID \
+                                          --sequence 1  \
+                                          --tls  \
+                                          --cafile $ORDERER_CA
+```
+
+Once both organizations have installed, and approved the chaincode, it can be committed.
+
+```
+# MAGNETOCORP
+
+export PEER_ADDRESS_ORG1="--peerAddresses peer0.org1.example.com:7051 --tlsRootCertFiles  ${CRYPTO_ROOT}/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt"
+export PEER_ADDRESS_ORG2="--peerAddresses peer0.org2.example.com:9051 --tlsRootCertFiles  ${CRYPTO_ROOT}/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt"
+
+peer lifecycle chaincode commit -o orderer.example.com:7050 --channelID mychannel --name papercontract -v 0 --sequence 1 ${PEER_ADDRESS_ORG1} ${PEER_ADDRESS_ORG2} --tls --cafile $ORDERER_CA --waitForEvent 
+
+```
+
+To test try sending some simple transactions.
+
+```
+
+peer chaincode invoke -o orderer.example.com:7050 --channelID mychannel --name papercontract -c '{"Args":["org.papernet.commercialpaper:instantiate"]}' ${PEER_ADDRESS_ORG1} ${PEER_ADDRESS_ORG2} --tls --cafile $ORDERER_CA --waitForEvent
+
+peer chaincode query -o orderer.example.com:7050 --channelID mychannel --name papercontract -c '{"Args":["org.hyperledger.fabric:GetMetadata"]}' ${PEER_ADDRESS_ORG1} --tls --cafile $ORDERER_CA | jq -C | more
 ```
