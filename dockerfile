@@ -3,11 +3,11 @@
 # Allows for a set of users to be created
 # 
 
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 
 # Update and install node v8
 RUN apt-get update && apt-get upgrade -y && apt-get dist-upgrade -y && apt-get -y install curl gnupg build-essential sudo
-RUN curl -sL https://deb.nodesource.com/setup_12.x  | bash - && apt-get -y install nodejs
+RUN curl -sL https://deb.nodesource.com/setup_16.x  | bash - && apt-get -y install nodejs
 
 # Add essential users, to the correct group, and update their passwords
 RUN addgroup hats && addgroup org1 && addgroup org2
